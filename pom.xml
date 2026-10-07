@@ -24,7 +24,7 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
-        <version>4.0.13</version>
+        <version>5.0.4</version>
         <extensions>true</extensions>
         <configuration>
           <pomDependencies>consider</pomDependencies>

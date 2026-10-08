@@ -1,5 +1,6 @@
 package carisma.rt.instrument;
 
+import org.gravity.security.annotations.requirements.Critical;
 import org.gravity.security.annotations.requirements.Secrecy;
 
 public final class RTAgentTestApplication {
@@ -17,8 +18,8 @@ public final class RTAgentTestApplication {
 		String accessSecretWithEarlyReturn() { return new SecretService().secretWithEarlyReturn(); }
 	}
 
+	@Critical(secrecy = {"secret():java.lang.String"})
 	static final class SecretCaller {
-		@Secrecy
 		String accessSecret() { return new SecretService().secret(); }
 	}
 

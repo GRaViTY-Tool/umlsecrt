@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-class RTAgentSecrecyIntegrationTest {
+class RTAgentSecrecyIT {
 
 	@Test
 	void enforcesSecrecyInForkedJvm() throws Exception {

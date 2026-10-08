@@ -1,54 +1,34 @@
 package carisma.rt.instrument;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.gravity.security.annotations.requirements.Secrecy;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 class RTAgentSecrecyIntegrationTest {
 
-	static final class SecretService {
-		@Secrecy
-		String secret() {
-			return "secret";
-		}
-
-		@Secrecy(earlyReturn = "\"redacted\"")
-		String secretWithEarlyReturn() {
-			return "secret";
-		}
-	}
-
-	static final class PublicService {
-		String accessSecret() {
-			return new SecretService().secret();
-		}
-
-		String accessSecretWithEarlyReturn() {
-			return new SecretService().secretWithEarlyReturn();
-		}
-	}
-
-	static final class SecretCaller {
-		@Secrecy
-		String accessSecret() {
-			return new SecretService().secret();
-		}
-	}
-
 	@Test
-	void rejectsAccessFromCallerWithoutSecrecy() {
-		assertThrows(SecurityException.class, () -> new PublicService().accessSecret());
-	}
+	void enforcesSecrecyInForkedJvm() throws Exception {
+		final String javaHome = System.getProperty("java.home");
+		final String java = new File(javaHome, "bin/java").getAbsolutePath();
+		final String classPath = System.getProperty("java.class.path");
+		final String agent = new File("target", "org.gravity.umlsecrt.agent-1.0.0-SNAPSHOT.jar").getAbsolutePath();
 
-	@Test
-	void permitsAccessFromCallerProvidingSecrecy() {
-		assertEquals("secret", new SecretCaller().accessSecret());
-	}
+		final List<String> command = new ArrayList<>();
+		command.add(java);
+		command.add("-javaagent:" + agent);
+		command.add("-cp");
+		command.add(classPath);
+		command.add(RTAgentTestApplication.class.getName());
 
-	@Test
-	void usesConfiguredEarlyReturnForUnauthorizedAccess() {
-		assertEquals("redacted", new PublicService().accessSecretWithEarlyReturn());
+		final Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+		final String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+		final int exit = process.waitFor();
+
+		assertEquals(0, exit, output);
 	}
 }

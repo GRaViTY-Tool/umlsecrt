@@ -14,7 +14,6 @@
 	<name>UMLsecRT Agent</name>
 
 	<build>
-		<sourceDirectory>src/carisma</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
